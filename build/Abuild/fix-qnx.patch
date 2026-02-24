@@ -1,0 +1,26 @@
+diff '--color=auto' -Naur p11-kit-0.25.5.orig/p11-kit/server.c p11-kit-0.25.5/p11-kit/server.c
+--- p11-kit-0.25.5.orig/p11-kit/server.c	2024-07-01 09:53:16.000000000 -0400
++++ p11-kit-0.25.5/p11-kit/server.c	2025-03-25 13:45:24.397762984 -0400
+@@ -84,6 +84,10 @@
+
+ #define SD_LISTEN_FDS_START 3
+ 
++#ifdef __QNX__
++#include <sys/select.h>
++#endif /* __QNX__ */
++
+ #endif /* OS_UNIX */
+ 
+ #ifdef ENABLE_NLS
+--- p11-kit-0.25.10/p11-kit/test-transport-base.c.orig	2025-10-06 19:54:07.000000000 +0000
++++ p11-kit-0.25.10/p11-kit/test-transport-base.c	2025-10-06 19:54:35.000000000 +0000
+@@ -47,6 +47,9 @@
+ #include <errno.h>
+ #include <sys/types.h>
+ #include <signal.h>
++#ifdef __QNX__
++#include <sys/select.h>
++#endif
+ #ifdef OS_UNIX
+ #include <sys/socket.h>
+ #include <sys/un.h>

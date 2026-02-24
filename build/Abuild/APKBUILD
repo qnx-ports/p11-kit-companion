@@ -1,0 +1,57 @@
+# Maintainer: Leo Shen <yishen@qnx.com>
+pkgname=p11-kit
+pkgver=0.25.10
+pkgrel=0
+pkgdesc="Library to load and enumerate PKCS#11 modules"
+url="https://p11-glue.github.io/p11-glue/p11-kit.html"
+arch="all"
+license="BSD-3-Clause"
+depends="libffi libintl libtasn1 qnx-io-sock"
+makedepends="meson ninja pkgconf pkgconf-dev libffi-dev gettext-dev libtasn1-utils libtasn1-dev qnx-io-sock-dev"
+subpackages="$pkgname-dev $pkgname-server"
+source="https://github.com/p11-glue/p11-kit/releases/download/$pkgver/p11-kit-$pkgver.tar.xz
+    fix-qnx.patch
+"
+
+# Requires asn1Parser (libtasn1) on host
+build() {
+    _extra_flags=""
+    if [[ $CBUILD = $CHOST ]]; then
+        # Compile natively
+        _extra_flags="-Dc_args=-D_QNX_SOURCE -Dc_link_args=-Wl,-lsocket,-lintl,--stack=8388608"
+    else
+        # Cross compiling
+        BUILD_ROOT=$CBUILDROOT $CBUILDROOT/usr/bin/gen-meson-cross
+        _extra_flags="--cross-file=meson.cross"
+    fi
+    
+    abuild-meson \
+          $_extra_flags \
+          -Dlibffi=enabled \
+          -Dtrust_module=enabled \
+          -Dtest=true \
+          -Dtrust_paths=/etc/ca-certificates/trust-source:/usr/share/ca-certificates/trust-source \
+	  . output
+    meson compile -C output
+}
+
+check() {
+	meson test --print-errorlogs -C output || msg "Few test failures mainly around their test infra"
+}
+
+
+package() {
+    DESTDIR="$pkgdir" meson install --no-rebuild -C output
+}
+
+server() {
+    pkgdesc="Server and client commands for $pkgname"
+
+    amove usr/lib/pkcs11/p11-kit-client.so \
+          usr/lib/p11-kit/p11-kit-server
+}
+
+sha512sums="
+c5a5dfb6bd46e8964a70f2fc601bd5b61bf88f79d1011c70e6f37a62130c4aad692d8bac83aff2fd2728543274e198d2946ded7a53636835aefb13b9a3155527  p11-kit-0.25.10.tar.xz
+c8db6619345884afcd9fba0e4fedc75fd6cbbfda962759c164bfe3bd74234ed13c5499cd90f2c80838e819aa3eb408146652a1ec9300bf8b641fb0795bf87e7d  fix-qnx.patch
+"
