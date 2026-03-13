@@ -1,7 +1,7 @@
 # Maintainer: Leo Shen <yishen@qnx.com>
 pkgname=p11-kit
 pkgver=0.25.10
-pkgrel=0
+pkgrel=${pkgrel:-0}
 pkgdesc="Library to load and enumerate PKCS#11 modules"
 url="https://p11-glue.github.io/p11-glue/p11-kit.html"
 arch="all"
@@ -51,6 +51,7 @@ server() {
           usr/lib/p11-kit/p11-kit-server
 }
 
+options="$options ${DISABLE_CHECK:+!check}"
 sha512sums="
 c5a5dfb6bd46e8964a70f2fc601bd5b61bf88f79d1011c70e6f37a62130c4aad692d8bac83aff2fd2728543274e198d2946ded7a53636835aefb13b9a3155527  p11-kit-0.25.10.tar.xz
 c8db6619345884afcd9fba0e4fedc75fd6cbbfda962759c164bfe3bd74234ed13c5499cd90f2c80838e819aa3eb408146652a1ec9300bf8b641fb0795bf87e7d  fix-qnx.patch
